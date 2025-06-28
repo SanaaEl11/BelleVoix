@@ -51,6 +51,8 @@ import WarningAmberIcon from '@mui/icons-material/WarningAmber';
 import GroupIcon from '@mui/icons-material/Group';
 import CreerGroupe from './admin/CreerGroupe';
 import ListGroupe from './admin/ListGroupe';
+import { collection, onSnapshot } from 'firebase/firestore';
+import { db } from '../firebase';
 
 const drawerWidth = 240;
 const collapsedDrawerWidth = 64;
@@ -102,29 +104,6 @@ const navItems = [
   { text: 'Gérer des choix', icon: <LayersIcon /> },
 ];
 
-const statCards = [
-  {
-    title: 'Total Étudiants',
-    value: '1,200',
-    icon: <Avatar sx={{ bgcolor: '#dc3545' }}><SchoolIcon /></Avatar>,
-  },
-  {
-    title: 'Groupes',
-    value: '4',
-    icon: <Avatar sx={{ bgcolor: '#F7C015' }}><GroupIcon /></Avatar>,
-  },
-  {
-    title: 'Paiements ce mois',
-    value: '350',
-    icon: <Avatar sx={{ bgcolor: '#dc3545' }}><MonetizationOnIcon /></Avatar>,
-  },
-  {
-    title: 'Paiements en attente',
-    value: '8',
-    icon: <Avatar sx={{ bgcolor: '#F7C015' }}><WarningAmberIcon /></Avatar>,
-  },
-];
-
 export default function AdminDashboard() {
   const [anchorEl, setAnchorEl] = React.useState(null);
   const [userInfo, setUserInfo] = React.useState(null);
@@ -133,6 +112,9 @@ export default function AdminDashboard() {
   const [selectedMenu, setSelectedMenu] = React.useState('Dashboard');
   const [openDropdown, setOpenDropdown] = React.useState(null);
   const [ordersMenuAnchor, setOrdersMenuAnchor] = React.useState(null);
+  const [students, setStudents] = React.useState([]);
+  const [groups, setGroups] = React.useState([]);
+  const [payments, setPayments] = React.useState([]);
   const open = Boolean(anchorEl);
   const auth = getAuth(app);
   const navigate = useNavigate();
@@ -163,6 +145,71 @@ export default function AdminDashboard() {
 
     return () => unsubscribe();
   }, [auth, navigate]);
+
+  // Fetch data for dashboard
+  React.useEffect(() => {
+    if (!userInfo) return;
+
+    const unsubscribeStudents = onSnapshot(collection(db, 'students'), (snapshot) => {
+      const studentsData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+      setStudents(studentsData);
+    });
+
+    const unsubscribeGroups = onSnapshot(collection(db, 'groupes'), (snapshot) => {
+      const groupsData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+      setGroups(groupsData);
+    });
+
+    const unsubscribePayments = onSnapshot(collection(db, 'payments'), (snapshot) => {
+      const paymentsData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+      setPayments(paymentsData);
+    });
+
+    return () => {
+      unsubscribeStudents();
+      unsubscribeGroups();
+      unsubscribePayments();
+    };
+  }, [userInfo]);
+
+  // Calculate statCards dynamically
+  const statCards = React.useMemo(() => {
+    const currentMonth = new Date().getMonth();
+    const currentYear = new Date().getFullYear();
+    
+    const paymentsThisMonth = payments.filter(payment => {
+      if (payment.month) {
+        const paymentDate = new Date(payment.month);
+        return paymentDate.getMonth() === currentMonth && paymentDate.getFullYear() === currentYear;
+      }
+      return false;
+    });
+
+    const pendingPayments = payments.filter(payment => payment.status !== 'Payé');
+
+    return [
+      {
+        title: 'Total Étudiants',
+        value: students.length.toString(),
+        icon: <Avatar sx={{ bgcolor: '#dc3545' }}><SchoolIcon /></Avatar>,
+      },
+      {
+        title: 'Groupes',
+        value: groups.length.toString(),
+        icon: <Avatar sx={{ bgcolor: '#F7C015' }}><GroupIcon /></Avatar>,
+      },
+      {
+        title: 'Paiements ce mois',
+        value: paymentsThisMonth.length.toString(),
+        icon: <Avatar sx={{ bgcolor: '#dc3545' }}><MonetizationOnIcon /></Avatar>,
+      },
+      {
+        title: 'Paiements en attente',
+        value: pendingPayments.length.toString(),
+        icon: <Avatar sx={{ bgcolor: '#F7C015' }}><WarningAmberIcon /></Avatar>,
+      },
+    ];
+  }, [students, groups, payments]);
 
   const handleMenu = (event) => {
     setAnchorEl(event.currentTarget);

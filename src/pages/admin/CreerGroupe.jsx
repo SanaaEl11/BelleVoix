@@ -97,13 +97,26 @@ const CreerGroupe = ({ onCancel }) => {
   return (
     <Box sx={{ p: 3 }}>
       <Box sx={{ display: 'flex', alignItems: 'center', mb: 3 }}>
-        <Button
-          startIcon={<ArrowBackIcon />}
+        <Typography
           onClick={onCancel}
-          sx={{ mr: 2 }}
+          sx={{ 
+            mr: 2,
+            color: '#F7C015',
+            fontWeight: 600,
+            cursor: 'pointer',
+            textDecoration: 'underline',
+            textUnderlineOffset: '8px',
+            textDecorationThickness: '2px',
+            transition: 'all 0.2s ease',
+            '&:hover': {
+              color: '#e6b800',
+              textDecorationColor: '#e6b800',
+              transform: 'translateY(-1px)'
+            }
+          }}
         >
-          Retour
-        </Button>
+          ← Retour
+        </Typography>
         <Typography variant="h4" component="h1" sx={{ color: '#1c2526' }}>
           Créer un nouveau groupe
         </Typography>
@@ -170,6 +183,16 @@ const CreerGroupe = ({ onCancel }) => {
                     variant="outlined"
                     onClick={onCancel}
                     disabled={loading}
+                    sx={{
+                      borderColor: '#F7C015',
+                      color: '#F7C015',
+                      fontWeight: 600,
+                      '&:hover': {
+                        borderColor: '#e6b800',
+                        backgroundColor: '#F7C015',
+                        color: '#000'
+                      }
+                    }}
                   >
                     Annuler
                   </Button>

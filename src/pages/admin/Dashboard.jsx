@@ -1,7 +1,9 @@
 import React from 'react';
-import { Typography, Grid, Card, CardContent, Avatar, Box, Paper, Divider, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, TablePagination, TextField, InputAdornment } from '@mui/material';
+import { Typography, Grid, Card, CardContent, Avatar, Box, Paper, Divider, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, TablePagination, TextField, InputAdornment, CircularProgress } from '@mui/material';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar, Legend } from 'recharts';
 import SearchIcon from '@mui/icons-material/Search';
+import { collection, onSnapshot, query, orderBy, where, getDocs } from 'firebase/firestore';
+import { db } from '../../firebase';
 
 // Mock data for analytics
 const studentsPerMonth = [
@@ -69,17 +71,113 @@ function StatusBadge({ status }) {
 }
 
 export default function Dashboard({ statCards }) {
+  // Real data state
+  const [students, setStudents] = React.useState([]);
+  const [groups, setGroups] = React.useState([]);
+  const [payments, setPayments] = React.useState([]);
+  const [loading, setLoading] = React.useState(true);
+  const [analyticsData, setAnalyticsData] = React.useState({
+    studentsPerMonth: [],
+    paymentsPerMonth: []
+  });
+
   // Table state
   const [search, setSearch] = React.useState('');
   const [page, setPage] = React.useState(0);
   const [rowsPerPage, setRowsPerPage] = React.useState(5);
 
+  // Fetch real data from Firestore
+  React.useEffect(() => {
+    const unsubscribeStudents = onSnapshot(collection(db, 'students'), (snapshot) => {
+      const studentsData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+      setStudents(studentsData);
+    });
+
+    const unsubscribeGroups = onSnapshot(collection(db, 'groupes'), (snapshot) => {
+      const groupsData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+      setGroups(groupsData);
+    });
+
+    const unsubscribePayments = onSnapshot(collection(db, 'payments'), (snapshot) => {
+      const paymentsData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+      setPayments(paymentsData);
+    });
+
+    setLoading(false);
+
+    return () => {
+      unsubscribeStudents();
+      unsubscribeGroups();
+      unsubscribePayments();
+    };
+  }, []);
+
+  // Calculate analytics data
+  React.useEffect(() => {
+    if (students.length > 0 || payments.length > 0) {
+      // Calculate students per month
+      const studentsPerMonth = calculateStudentsPerMonth(students);
+      
+      // Calculate payments per month
+      const paymentsPerMonth = calculatePaymentsPerMonth(payments);
+      
+      setAnalyticsData({
+        studentsPerMonth,
+        paymentsPerMonth
+      });
+    }
+  }, [students, payments]);
+
+  const calculateStudentsPerMonth = (studentsData) => {
+    const monthCounts = {};
+    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    
+    studentsData.forEach(student => {
+      if (student.date_inscription) {
+        const date = new Date(student.date_inscription);
+        const month = months[date.getMonth()];
+        monthCounts[month] = (monthCounts[month] || 0) + 1;
+      }
+    });
+
+    return months.map(month => ({
+      month,
+      count: monthCounts[month] || 0
+    }));
+  };
+
+  const calculatePaymentsPerMonth = (paymentsData) => {
+    const monthCounts = {};
+    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    
+    paymentsData.forEach(payment => {
+      if (payment.month) {
+        const date = new Date(payment.month);
+        const month = months[date.getMonth()];
+        if (!monthCounts[month]) {
+          monthCounts[month] = { paid: 0, unpaid: 0 };
+        }
+        if (payment.status === 'Payé') {
+          monthCounts[month].paid++;
+        } else {
+          monthCounts[month].unpaid++;
+        }
+      }
+    });
+
+    return months.map(month => ({
+      month,
+      paid: monthCounts[month]?.paid || 0,
+      unpaid: monthCounts[month]?.unpaid || 0
+    }));
+  };
+
   // Filtered students
-  const filteredStudents = mockStudents.filter(s =>
-    s.nom.toLowerCase().includes(search.toLowerCase()) ||
-    s.prenom.toLowerCase().includes(search.toLowerCase()) ||
-    s.email.toLowerCase().includes(search.toLowerCase()) ||
-    s.cin.toLowerCase().includes(search.toLowerCase())
+  const filteredStudents = students.filter(s =>
+    s.nom?.toLowerCase().includes(search.toLowerCase()) ||
+    s.prenom?.toLowerCase().includes(search.toLowerCase()) ||
+    s.email?.toLowerCase().includes(search.toLowerCase()) ||
+    s.cin?.toLowerCase().includes(search.toLowerCase())
   );
   const paginatedStudents = filteredStudents.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage);
 
@@ -88,6 +186,14 @@ export default function Dashboard({ statCards }) {
     setRowsPerPage(parseInt(event.target.value, 10));
     setPage(0);
   };
+
+  if (loading) {
+    return (
+      <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '50vh' }}>
+        <CircularProgress />
+      </Box>
+    );
+  }
 
   return (
     <Box sx={{ maxWidth: '100%', mx: 'auto', px: { xs: 0.5, sm: 2, md: 4 } }}>
@@ -201,7 +307,7 @@ export default function Dashboard({ statCards }) {
                 Inscriptions des étudiants par mois
               </Typography>
               <ResponsiveContainer width="100%" height={220}>
-                <LineChart data={studentsPerMonth} margin={{ top: 10, right: 20, left: 0, bottom: 0 }}>
+                <LineChart data={analyticsData.studentsPerMonth} margin={{ top: 10, right: 20, left: 0, bottom: 0 }}>
                   <CartesianGrid strokeDasharray="3 3" />
                   <XAxis dataKey="month" tick={{ fontWeight: 700, fontSize: 13, fontFamily: 'Poppins, Arial, sans-serif' }} />
                   <YAxis allowDecimals={false} tick={{ fontWeight: 700, fontSize: 13, fontFamily: 'Poppins, Arial, sans-serif' }} label={{ value: 'Nombre', angle: -90, position: 'insideLeft', fontSize: 13, fill: '#dc3545', fontWeight: 900, fontFamily: 'Poppins, Arial, sans-serif' }} />
@@ -217,7 +323,7 @@ export default function Dashboard({ statCards }) {
                 Paiements des étudiants par mois
               </Typography>
               <ResponsiveContainer width="100%" height={260}>
-                <BarChart data={paymentsPerMonth} margin={{ top: 20, right: 40, left: 0, bottom: 0 }}>
+                <BarChart data={analyticsData.paymentsPerMonth} margin={{ top: 20, right: 40, left: 0, bottom: 0 }}>
                   <defs>
                     <linearGradient id="paidGradient" x1="0" y1="0" x2="0" y2="1">
                       <stop offset="0%" stopColor="#F7C015" stopOpacity={0.9} />
