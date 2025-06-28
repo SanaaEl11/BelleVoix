@@ -1,8 +1,7 @@
 import React, { useState } from 'react'
 import logo from '../assets/logo.png'
-import { FaGoogle } from 'react-icons/fa'
 import SignUp from './SignUp'
-import {getAuth, GoogleAuthProvider, signInWithEmailAndPassword, signInWithPopup} from "firebase/auth"
+import {getAuth, signInWithEmailAndPassword} from "firebase/auth"
 import {app}from '../firebase';
 import { useNavigate } from 'react-router-dom';
 
@@ -13,8 +12,6 @@ export default function Login({ onCloseModal }) {
   const[loginError,setLoginError]=useState('');
   const[successMessage,setSuccessMessage]=useState('');
   const auth=getAuth(app);
-  const GoogleProvider=new GoogleAuthProvider();
-  const navigate = useNavigate();
   
   if (showSignUp) {
     return <SignUp onSwitchToLogin={() => setShowSignUp(false)} />
@@ -48,58 +45,7 @@ export default function Login({ onCloseModal }) {
     }
   }
   
-  const HandleGoogleLogin=async()=>{
-    setLoginError('');
-    setSuccessMessage('');
-    try{
-      const result = await signInWithPopup(auth,GoogleProvider);
-      console.log("Google login Done");
-      setSuccessMessage('Connexion avec Google réussie !');
-      
-      // Store user info in localStorage
-      localStorage.setItem('userInfo', JSON.stringify({
-        email: result.user.email,
-        displayName: result.user.displayName || result.user.email.split('@')[0],
-        uid: result.user.uid
-      }));
-      
-      // Close modal and navigate to admin dashboard after a short delay
-      setTimeout(() => {
-        if (onCloseModal) onCloseModal();
-        navigate('/admin');
-      }, 1500);
-      
-    }catch(error){
-      console.log('Google login error:', error);
-      console.log('Error code:', error.code);
-      console.log('Error message:', error.message);
-      
-      // Provide more specific error messages
-      let errorMessage = 'Erreur lors de la connexion avec Google';
-      
-      switch(error.code) {
-        case 'auth/popup-closed-by-user':
-          errorMessage = 'Connexion annulée par l\'utilisateur';
-          break;
-        case 'auth/popup-blocked':
-          errorMessage = 'Popup bloqué par le navigateur. Veuillez autoriser les popups pour ce site.';
-          break;
-        case 'auth/unauthorized-domain':
-          errorMessage = 'Domaine non autorisé. Veuillez contacter l\'administrateur.';
-          break;
-        case 'auth/network-request-failed':
-          errorMessage = 'Erreur de réseau. Vérifiez votre connexion internet.';
-          break;
-        case 'auth/operation-not-allowed':
-          errorMessage = 'Connexion Google non activée. Veuillez contacter l\'administrateur.';
-          break;
-        default:
-          errorMessage = `Erreur lors de la connexion avec Google: ${error.message}`;
-      }
-      
-      setLoginError(errorMessage);
-    }
-  }
+  const navigate = useNavigate();
   
   return (
     <div className="login-modal-form-wrapper">
@@ -136,11 +82,6 @@ export default function Login({ onCloseModal }) {
         </div>
         <div className="login-or-separator">
           <span>ou</span>
-        </div>
-        <div className="d-flex justify-content-center">
-          <button type="button" className="btn btn-google-login w-100" onClick={HandleGoogleLogin}>
-            <FaGoogle style={{ marginRight: '0.5em', fontSize: '1.2em' }} /> Connecter avec Google
-          </button>
         </div>
         <p className="login-signup-switch text-center mt-3">
           Si vous n'avez pas de compte ?{' '}
