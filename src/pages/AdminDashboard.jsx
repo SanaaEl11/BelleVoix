@@ -49,6 +49,8 @@ import SchoolIcon from '@mui/icons-material/School';
 import MenuBookIcon from '@mui/icons-material/MenuBook';
 import WarningAmberIcon from '@mui/icons-material/WarningAmber';
 import GroupIcon from '@mui/icons-material/Group';
+import CreerGroupe from './admin/CreerGroupe';
+import ListGroupe from './admin/ListGroupe';
 
 const drawerWidth = 240;
 const collapsedDrawerWidth = 64;
@@ -87,6 +89,14 @@ const navItems = [
     subItems: [
       { text: 'Ajouter Paiement' },
       { text: 'Liste des Paiements' },
+    ]
+  },
+  { 
+    text: 'Groupes',
+    icon: <GroupIcon />,
+    subItems: [
+      { text: 'Créer des groupes' },
+      { text: 'Liste des groupes' },
     ]
   },
   { text: 'Gérer des choix', icon: <LayersIcon /> },
@@ -310,7 +320,7 @@ export default function AdminDashboard() {
                 <ListItem 
                   button 
                   onClick={(e) => {
-                    if (item.text === 'Inscription' || item.text === 'Paiement') {
+                    if (item.text === 'Inscription' || item.text === 'Paiement' || item.text === 'Groupes') {
                       if (sidebarOpen) {
                         setOpenDropdown((open) => open === item.text ? null : item.text);
                       } else {
@@ -344,12 +354,12 @@ export default function AdminDashboard() {
                   </Box>
                   {sidebarOpen && (
                     <Typography sx={{ color: 'inherit', fontSize: 18, fontWeight: 'bold' }}>
-                      <IoIosArrowForward style={{ transform: item.text === 'Inscription' && openDropdown === item.text ? 'rotate(90deg)' : 'none', transition: 'transform 0.2s' }} />
+                      <IoIosArrowForward style={{ transform: (item.text === 'Inscription' || item.text === 'Paiement' || item.text === 'Groupes') && openDropdown === item.text ? 'rotate(90deg)' : 'none', transition: 'transform 0.2s' }} />
                     </Typography>
                   )}
                 </ListItem>
-                {/* Dropdown for Inscription or Paiement (expanded sidebar) */}
-                {(item.text === 'Inscription' || item.text === 'Paiement') && openDropdown === item.text && sidebarOpen && (
+                {/* Dropdown for Inscription, Paiement, or Groupes (expanded sidebar) */}
+                {(item.text === 'Inscription' || item.text === 'Paiement' || item.text === 'Groupes') && openDropdown === item.text && sidebarOpen && (
                   <List component="div" disablePadding>
                     {item.subItems.map((sub) => (
                       <ListItem
@@ -457,6 +467,12 @@ export default function AdminDashboard() {
         )}
         {selectedMenu === 'Gérer des choix' && (
           <GererChoix />
+        )}
+        {selectedMenu === 'Créer des groupes' && (
+          <CreerGroupe onCancel={() => setSelectedMenu('Dashboard')} />
+        )}
+        {selectedMenu === 'Liste des groupes' && (
+          <ListGroupe />
         )}
         {/* Add more dashboard content here */}
       </Main>

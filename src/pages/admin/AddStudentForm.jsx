@@ -20,6 +20,7 @@ import { collection, onSnapshot, addDoc } from 'firebase/firestore';
 export default function AddStudentForm({ onCancel }) {
   const [form, setForm] = useState({ prenom: '', nom: '', cin: '', email: '', choix: '' });
   const [courses, setCourses] = useState([]);
+  const [existingStudents, setExistingStudents] = useState([]);
   const [loadingChoices, setLoadingChoices] = useState(true);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -31,13 +32,31 @@ export default function AddStudentForm({ onCancel }) {
       setCourses(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })));
       setLoadingChoices(false);
     });
-    return () => unsub();
+    
+    const unsubStudents = onSnapshot(collection(db, 'students'), (snapshot) => {
+      setExistingStudents(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })));
+    });
+    
+    return () => { unsub(); unsubStudents(); };
   }, []);
 
   const validate = () => {
     if (!form.prenom || !form.nom || !form.cin || !form.email || !form.choix) return 'Tous les champs sont requis';
     if (!/^[a-zA-Z0-9]+$/.test(form.cin)) return 'CIN invalide';
     if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(form.email)) return 'Email invalide';
+    
+    // Check for unique CIN
+    const cinExists = existingStudents.some(student => 
+      student.cin && student.cin.toLowerCase() === form.cin.toLowerCase()
+    );
+    if (cinExists) return 'Ce CIN existe déjà';
+    
+    // Check for unique email
+    const emailExists = existingStudents.some(student => 
+      student.email && student.email.toLowerCase() === form.email.toLowerCase()
+    );
+    if (emailExists) return 'Cet email existe déjà';
+    
     return '';
   };
 
