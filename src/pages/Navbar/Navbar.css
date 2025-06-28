@@ -1,0 +1,484 @@
+/* Advanced styling for Navbar and Header */
+
+/* Navbar */
+.navbar {
+  background: #fff !important;
+  box-shadow: 0 2px 16px 0 rgba(0,0,0,0.07);
+  transition: all 0.3s cubic-bezier(.4,0,.2,1);
+  border: 2.5px solid #fff !important; /* White border */
+  border-radius: 2.5rem !important;   /* Advanced rounded corners */
+  margin: 1.5rem 2.5vw 0 2.5vw !important; /* Margin on all sides, top more pronounced */
+  width: auto;
+  max-width: 98vw;
+  border-bottom: none;
+}
+
+.navbar-brand {
+  font-size: 2.2rem;
+  color: #F7C015 !important;
+  letter-spacing: 1px;
+  font-weight: 700;
+  text-shadow: 0 2px 8px #0001;
+}
+
+.logo-img {
+  width: 70px;
+  height: auto;
+  transition: transform 0.3s cubic-bezier(.4,0,.2,1);
+  filter: drop-shadow(0 2px 8px #0002);
+}
+
+.logo-img:hover {
+  transform: scale(1.08) rotate(-2deg);
+}
+
+.nav-link {
+  position: relative;
+  color: #1c2526 !important;
+  font-size: 1.08rem;
+  font-weight: 500;
+  margin: 0 0.7rem;
+  letter-spacing: 0.5px;
+  transition: color 0.2s cubic-bezier(.4,0,.2,1);
+}
+
+.nav-link::after {
+  content: '';
+  position: absolute;
+  width: 0;
+  height: 2.5px;
+  bottom: -3px;
+  left: 0;
+  background: linear-gradient(90deg, #dc3545 60%, #F7C015 100%);
+  border-radius: 2px;
+  transition: width 0.3s cubic-bezier(.4,0,.2,1);
+}
+
+.nav-link:hover,
+.nav-link.active {
+  color: #dc3545 !important;
+}
+
+.nav-link:hover::after,
+.nav-link.active::after {
+  width: 100%;
+}
+
+.hover-bg-primary:hover {
+  background: rgba(247,192,21,0.08);
+}
+
+/* Toggle Icon */
+.navbar-toggler {
+  background: transparent;
+  border: none !important;
+  outline: none !important;
+  box-shadow: none !important;
+  padding: 0.35rem 0.7rem;
+}
+
+.navbar-toggler .navbar-toggler-icon {
+  color: #1c2526 !important;
+  font-size: 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Login Button */
+.btn-login-pro {
+  background: linear-gradient(90deg, #dc3545 60%, #F7C015 100%);
+  color: #1c2526 !important; /* Black text by default */
+  font-weight: 700;
+  border: none;
+  border-radius: 999px;
+  box-shadow: 0 2px 12px 0 #dc354540;
+  padding: 0.6rem 2.2rem;
+  font-size: 1.08rem;
+  letter-spacing: 0.5px;
+  transition: background 0.2s, box-shadow 0.2s, transform 0.2s, color 0.2s;
+  outline: none;
+}
+
+.btn-login-pro:hover, .btn-login-pro:focus {
+  background: linear-gradient(90deg, #F7C015 0%, #dc3545 100%);
+  color: #fff !important; /* White text on hover */
+  box-shadow: 0 4px 18px 0 #F7C01540;
+  transform: translateY(-2px) scale(1.04);
+}
+
+/* Header */
+.hero-section {
+  height: 100vh;
+  min-height: 500px;
+  overflow: hidden;
+  position: relative;
+  background: #000;
+}
+
+.header-bg-img {
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  top: 0; left: 0;
+  z-index: 1;
+  overflow: hidden;
+}
+
+.header-bg-img .bg-img {
+  width: 100vw;
+  height: 100vh;
+  object-fit: cover;
+  filter: blur(6px) brightness(0.7) saturate(1.1);
+  pointer-events: none;
+  user-select: none;
+}
+
+.hero-overlay {
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 2;
+  background: rgba(28, 37, 38, 0.18);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* --- Hero Section Text Modern Clean Style --- */
+.hero-section .text-center.text-light {
+  background: none;
+ 
+ 
+  padding: 0;
+  
+ 
+  margin: 0 auto;
+}
+
+.hero-section h1 {
+  font-size: 2.5rem;
+  font-weight: 800;
+  background: linear-gradient(90deg, #dc3545 60%, #F7C015 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  text-fill-color: transparent;
+  margin-bottom: 1.3rem;
+  margin-top:1.3rem;
+  
+}
+
+.hero-section p {
+  font-size: 1.3rem;
+  color: #fff;
+  font-weight: 400;
+  opacity: 0.92;
+  margin-bottom: 2rem;
+  letter-spacing: 0.2px;
+}
+
+.hero-section .btn-primary {
+  background: linear-gradient(90deg, #dc3545 60%, #F7C015 100%);
+  color: #fff !important;
+  font-weight: 700;
+  border: none;
+  padding: 0.7rem 2.5rem;
+  font-size: 1.08rem;
+  border-radius: 999px;
+  letter-spacing: 0.5px;
+  transition: background 0.2s, color 0.2s, transform 0.2s;
+  box-shadow: none;
+}
+.hero-section .btn-primary:hover, .hero-section .btn-primary:focus {
+  background: linear-gradient(90deg, #F7C015 0%, #dc3545 100%);
+  color: #1c2526 !important;
+  transform: translateY(-2px) scale(1.04);
+}
+
+/* Responsive Adjustments */
+@media (max-width: 991px) {
+  .navbar-nav {
+    text-align: center;
+  }
+
+  .nav-link {
+    margin: 0.5rem 0;
+  }
+
+  .hero-section h1 {
+    padding-top:5px;
+    font-size: 3.5rem;
+  }
+
+  .hero-section p {
+    font-size: 1rem;
+  }
+
+  .hero-section .btn-primary {
+    padding: 0.5rem 1.5rem;
+    font-size: 1rem;
+  }
+}
+
+@media (max-width: 576px) {
+  .navbar-brand {
+    font-size: 1.1rem;
+  }
+
+  .logo-img {
+    width: 38px;
+  }
+
+  .hero-section h1 {
+    font-size: 0.95rem;
+  }
+
+  .hero-section .btn-primary {
+    padding: 0.4rem 1.1rem;
+    font-size: 0.95rem;
+  }
+}
+
+/* Animate.css integration */
+.animate__animated {
+  animation-duration: 1s;
+}
+
+.header-link-explore {
+  display: inline-flex;
+  align-items: center;
+  color: #fff;
+  font-weight: 700;
+  font-size: 1.35rem;
+  background: none;
+  border: none;
+  box-shadow: none;
+  padding: 0;
+  margin: 0;
+  text-decoration: none;
+  cursor: pointer;
+  transition: color 0.2s;
+  text-transform: capitalize;
+}
+.header-link-explore svg {
+  transition: transform 0.3s cubic-bezier(.4,0,.2,1);
+}
+.header-link-explore:hover, .header-link-explore:focus {
+  color: #F7C015;
+  text-decoration: none;
+}
+.header-link-explore:hover svg, .header-link-explore:focus svg {
+  transform: translateX(8px);
+}
+
+@media (max-width: 991px) {
+  .header-link-explore {
+    font-size: 1.15rem;
+  }
+}
+@media (max-width: 576px) {
+  .header-link-explore {
+    font-size: 1rem;
+  }
+}
+
+/* --- Login Modal Overlay --- */
+.login-modal-overlay {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(28, 37, 38, 0.35);
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  backdrop-filter: blur(8px) saturate(1.2);
+}
+.login-modal-content {
+  background: #fff;
+  border-radius: 1.2rem;
+  box-shadow: 0 8px 32px 0 rgba(28,37,38,0.18);
+  padding: 2.5rem 2rem 2rem 2rem;
+  min-width: 320px;
+  max-width: 95vw;
+  min-height: 120px;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+}
+.login-modal-close {
+  position: absolute;
+  top: 1rem;
+  right: 1.2rem;
+  background: none;
+  border: none;
+  font-size: 2rem;
+  color: #dc3545;
+  cursor: pointer;
+  z-index: 2;
+  transition: color 0.2s;
+}
+.login-modal-close:hover {
+  color: #F7C015;
+}
+
+/* Blur the main content when modal is open */
+body:has(.login-modal-overlay) .navbar,
+body:has(.login-modal-overlay) .hero-section {
+  filter: blur(6px) brightness(0.9) grayscale(0.1);
+  pointer-events: none;
+  user-select: none;
+}
+
+.login-modal-form-wrapper {
+  width: 100%;
+  max-width: 350px;
+  margin: 0 auto;
+  padding: 0;
+}
+.login-logo-center {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+.login-logo-img {
+  width: 70px;
+  height: auto;
+  display: block;
+}
+.login-form .form-label {
+  font-weight: 600;
+  color: #1c2526;
+}
+.login-form .form-control {
+  border-radius: 0.7rem;
+  border: 1.5px solid #F7C015;
+  font-size: 1rem;
+  margin-bottom: 0.5rem;
+}
+.login-form .form-control:focus {
+  border-color: #dc3545;
+  box-shadow: 0 0 0 2px #F7C01533;
+}
+.login-form .form-check-label {
+  font-size: 0.98rem;
+  color: #1c2526;
+}
+.btn-login-modal {
+  background: linear-gradient(90deg, #dc3545 60%, #F7C015 100%);
+  color: #fff;
+  font-weight: 700;
+  border: none;
+  border-radius: 999px;
+  padding: 0.6rem 0;
+  margin-top: 0.5rem;
+  margin-bottom: 0.5rem;
+  transition: background 0.2s, color 0.2s, transform 0.2s;
+}
+.btn-login-modal:hover, .btn-login-modal:focus {
+  background: linear-gradient(90deg, #F7C015 0%, #dc3545 100%);
+  color: #1c2526;
+  transform: translateY(-2px) scale(1.04);
+}
+.login-or-separator {
+  text-align: center;
+  margin: 1.1rem 0 1.1rem 0;
+  font-weight: 600;
+  color: #aaa;
+  position: relative;
+}
+.login-or-separator span {
+  background: #fff;
+  padding: 0 1.2em;
+  position: relative;
+  z-index: 1;
+}
+.login-or-separator:before {
+  content: '';
+  display: block;
+  position: absolute;
+  top: 50%;
+  left: 0;
+  width: 100%;
+  height: 1px;
+  background: #eee;
+  z-index: 0;
+}
+.btn-google-login {
+  background: #fff;
+  color: #dc3545;
+  border: 1.5px solid #dc3545;
+  font-weight: 700;
+  border-radius: 999px;
+  padding: 0.6rem 0;
+  transition: background 0.2s, color 0.2s, border 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5em;
+}
+.btn-google-login:hover, .btn-google-login:focus {
+  background: #dc3545;
+  color: #fff;
+  border-color: #F7C015;
+}
+
+.login-signup-switch {
+  font-size: 1rem;
+  color: #1c2526;
+  margin-top: 1.2rem;
+}
+.login-signup-link {
+  color: #dc3545;
+  cursor: pointer;
+  font-weight: 600;
+  transition: color 0.2s;
+  text-decoration: underline;
+}
+.login-signup-link:hover {
+  color: #F7C015;
+  text-decoration: underline;
+}
+
+/* SignUp form wrapper for modal consistency */
+.signup-modal-form-wrapper {
+  width: 100%;
+  max-width: 350px;
+  margin: 0 auto;
+  padding: 0;
+}
+.signup-form .form-label {
+  font-weight: 600;
+  color: #1c2526;
+}
+.signup-form .form-control {
+  border-radius: 0.7rem;
+  border: 1.5px solid #F7C015;
+  font-size: 1rem;
+  margin-bottom: 0.5rem;
+}
+.signup-form .form-control:focus {
+  border-color: #dc3545;
+  box-shadow: 0 0 0 2px #F7C01533;
+}
+.btn-login-modal {
+  background: linear-gradient(90deg, #dc3545 60%, #F7C015 100%);
+  color: #fff;
+  font-weight: 700;
+  border: none;
+  border-radius: 999px;
+  padding: 0.6rem 0;
+  margin-top: 0.5rem;
+  margin-bottom: 0.5rem;
+  transition: background 0.2s, color 0.2s, transform 0.2s;
+}
+.btn-login-modal:hover, .btn-login-modal:focus {
+  background: linear-gradient(90deg, #F7C015 0%, #dc3545 100%);
+  color: #1c2526;
+  transform: translateY(-2px) scale(1.04);
+}
