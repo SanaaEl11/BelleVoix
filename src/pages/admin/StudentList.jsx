@@ -1,9 +1,10 @@
 import React from 'react';
 import {
-  Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, TablePagination, Typography, Select, MenuItem, IconButton, Box
+  Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, TablePagination, Typography, Select, MenuItem, IconButton, Box, TextField, InputAdornment
 } from '@mui/material';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
+import SearchIcon from '@mui/icons-material/Search';
 import { Box as MuiBox } from '@mui/material';
 import { db } from '../../firebase';
 import { collection, onSnapshot, updateDoc, deleteDoc, doc } from 'firebase/firestore';
@@ -12,7 +13,6 @@ import DialogTitle from '@mui/material/DialogTitle';
 import DialogContent from '@mui/material/DialogContent';
 import DialogActions from '@mui/material/DialogActions';
 import Button from '@mui/material/Button';
-import TextField from '@mui/material/TextField';
 
 function StatusBadge({ status }) {
   const isActive = status === 'Actif';
@@ -58,6 +58,7 @@ export default function StudentList() {
   const [editForm, setEditForm] = React.useState({ prenom: '', nom: '', cin: '', email: '', choix: '', status: '' });
   const [deleteIndex, setDeleteIndex] = React.useState(null);
   const [choices, setChoices] = React.useState([]);
+  const [search, setSearch] = React.useState('');
 
   // Fetch students from Firestore
   React.useEffect(() => {
@@ -136,11 +137,58 @@ export default function StudentList() {
     setDeleteIndex(null);
   };
 
-  const paginatedStudents = students.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage);
+  // Filter students based on search
+  const filteredStudents = students.filter(s =>
+    s.nom?.toLowerCase().includes(search.toLowerCase()) ||
+    s.prenom?.toLowerCase().includes(search.toLowerCase()) ||
+    s.email?.toLowerCase().includes(search.toLowerCase()) ||
+    s.cin?.toLowerCase().includes(search.toLowerCase()) ||
+    s.choix?.toLowerCase().includes(search.toLowerCase())
+  );
+
+  const paginatedStudents = filteredStudents.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage);
 
   return (
     <Paper elevation={2} sx={{ mt: 3, p: { xs: 1, sm: 2 }, borderRadius: 4, boxShadow: '0 4px 24px 0 rgba(220,53,69,0.08)' }}>
-      <Typography variant="h6" sx={{ fontWeight: 700, color: '#dc3545', mb: 2 }}>Liste des étudiants inscrits</Typography>
+      <Box sx={{ display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, justifyContent: 'space-between', alignItems: { xs: 'stretch', sm: 'center' }, mb: 2, flexWrap: 'wrap', gap: 2 }}>
+        <Typography variant="h6" sx={{ fontWeight: 700, color: '#dc3545', fontSize: { xs: '1rem', sm: '1.1rem' } }}>Liste des étudiants inscrits</Typography>
+        <TextField
+          size="small"
+          variant="outlined"
+          placeholder="Recherche par nom, prénom, email, CIN, cours..."
+          value={search}
+          onChange={e => setSearch(e.target.value)}
+          sx={{
+            minWidth: { xs: '100%', sm: 240 },
+            background: '#fff',
+            borderRadius: 3,
+            boxShadow: '0 2px 8px 0 rgba(220,53,69,0.07)',
+            '& .MuiOutlinedInput-root': {
+              borderRadius: 3,
+              fontSize: '1rem',
+              fontWeight: 500,
+              paddingRight: 0,
+              '& fieldset': {
+                borderColor: '#f0f0f0',
+              },
+              '&:hover fieldset': {
+                borderColor: '#F7C015',
+              },
+              '&.Mui-focused fieldset': {
+                borderColor: '#dc3545',
+                boxShadow: '0 0 0 2px #F7C01533',
+              },
+            },
+          }}
+          InputProps={{
+            startAdornment: (
+              <InputAdornment position="start">
+                <SearchIcon sx={{ color: '#dc3545', fontSize: 22 }} />
+              </InputAdornment>
+            ),
+          }}
+        />
+      </Box>
       {loading ? (
         <Box sx={{ textAlign: 'center', my: 4 }}>
           <span className="spinner-border" />
@@ -208,7 +256,7 @@ export default function StudentList() {
       )}
       <TablePagination
         component="div"
-        count={students.length}
+        count={filteredStudents.length}
         page={page}
         onPageChange={handleChangePage}
         rowsPerPage={rowsPerPage}

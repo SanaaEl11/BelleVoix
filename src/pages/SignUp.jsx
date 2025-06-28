@@ -3,6 +3,8 @@ import React from 'react'
 import {createUserWithEmailAndPassword, getAuth, signInWithEmailAndPassword} from "firebase/auth"
 import {useState} from 'react';
 import {app}from '../firebase';
+import { doc, setDoc } from 'firebase/firestore';
+import { db } from '../firebase';
 
 export default function SignUp({ onSwitchToLogin }) {
   const[email,setEmail]=useState('');
@@ -32,7 +34,22 @@ export default function SignUp({ onSwitchToLogin }) {
     }
     
     try{
-      await createUserWithEmailAndPassword(auth,email,password);
+      // Create user with Firebase Auth
+      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+      const user = userCredential.user;
+      
+      // Store user data in Firestore
+      await setDoc(doc(db, 'users', user.uid), {
+        uid: user.uid,
+        email: email,
+        firstname: firstname,
+        lastname: lastname,
+        displayName: `${firstname} ${lastname}`,
+        role: 'user', // Default role
+        createdAt: new Date().toISOString(),
+        isActive: true
+      });
+      
       console.log("SignUp successful");
       setSuccessMessage(' Votre compte a été créé avec succès.');
       // Clear form fields after successful signup

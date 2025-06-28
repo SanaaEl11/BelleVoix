@@ -70,8 +70,34 @@ export default function Login({ onCloseModal }) {
       }, 1500);
       
     }catch(error){
-      console.log(error);
-      setLoginError('Erreur lors de la connexion avec Google');
+      console.log('Google login error:', error);
+      console.log('Error code:', error.code);
+      console.log('Error message:', error.message);
+      
+      // Provide more specific error messages
+      let errorMessage = 'Erreur lors de la connexion avec Google';
+      
+      switch(error.code) {
+        case 'auth/popup-closed-by-user':
+          errorMessage = 'Connexion annulée par l\'utilisateur';
+          break;
+        case 'auth/popup-blocked':
+          errorMessage = 'Popup bloqué par le navigateur. Veuillez autoriser les popups pour ce site.';
+          break;
+        case 'auth/unauthorized-domain':
+          errorMessage = 'Domaine non autorisé. Veuillez contacter l\'administrateur.';
+          break;
+        case 'auth/network-request-failed':
+          errorMessage = 'Erreur de réseau. Vérifiez votre connexion internet.';
+          break;
+        case 'auth/operation-not-allowed':
+          errorMessage = 'Connexion Google non activée. Veuillez contacter l\'administrateur.';
+          break;
+        default:
+          errorMessage = `Erreur lors de la connexion avec Google: ${error.message}`;
+      }
+      
+      setLoginError(errorMessage);
     }
   }
   
