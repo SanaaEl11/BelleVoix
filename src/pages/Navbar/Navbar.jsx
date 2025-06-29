@@ -7,10 +7,12 @@ import headerImage from "../../assets/header-bg2.webp"; // Placeholder for heade
 import { FaBars } from "react-icons/fa";
 import { FaArrowRight } from "react-icons/fa";
 import Login from "../Login";
+import SignUp from "../SignUp";
 
 const Navbar = () => {
   const [isNavExpanded, setIsNavExpanded] = useState(false);
   const [showLoginModal, setShowLoginModal] = useState(false);
+  const [showSignUp, setShowSignUp] = useState(false);
 
   const toggleNav = () => {
     setIsNavExpanded(!isNavExpanded);
@@ -80,8 +82,18 @@ const Navbar = () => {
       {showLoginModal && (
         <div className="login-modal-overlay">
           <div className="login-modal-content">
-            <button className="login-modal-close" onClick={() => setShowLoginModal(false)}>&times;</button>
-            <Login onCloseModal={() => setShowLoginModal(false)} />
+            <button className="login-modal-close" onClick={() => {
+              setShowLoginModal(false);
+              setShowSignUp(false);
+            }}>&times;</button>
+            {showSignUp ? (
+              <SignUp onSwitchToLogin={() => setShowSignUp(false)} />
+            ) : (
+              <Login 
+                onCloseModal={() => setShowLoginModal(false)}
+                onSwitchToSignUp={() => setShowSignUp(true)}
+              />
+            )}
           </div>
         </div>
       )}

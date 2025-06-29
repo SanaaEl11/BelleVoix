@@ -4,18 +4,15 @@ import SignUp from './SignUp'
 import {getAuth, signInWithEmailAndPassword} from "firebase/auth"
 import {app}from '../firebase';
 import { useNavigate } from 'react-router-dom';
+import { doc, getDoc } from 'firebase/firestore';
+import { db } from '../firebase';
 
-export default function Login({ onCloseModal }) {
-  const [showSignUp, setShowSignUp] = useState(false)
-  const[email,setEmail]=useState('');
+export default function Login({ onCloseModal, onSwitchToSignUp }) {
+  const [email,setEmail]=useState('');
   const[password,setpassword]=useState('');
   const[loginError,setLoginError]=useState('');
   const[successMessage,setSuccessMessage]=useState('');
   const auth=getAuth(app);
-  
-  if (showSignUp) {
-    return <SignUp onSwitchToLogin={() => setShowSignUp(false)} />
-  }
   
   const HandleLogin=async(e)=>{
     e.preventDefault();
@@ -23,22 +20,31 @@ export default function Login({ onCloseModal }) {
     setSuccessMessage('');
     try{
       const userCredential = await signInWithEmailAndPassword(auth,email,password);
-      console.log("loged In");
+      const user = userCredential.user;
+      // Fetch user role from Firestore
+      const userDoc = await getDoc(doc(db, 'users', user.uid));
+      if (!userDoc.exists()) {
+        setLoginError("Aucun rôle trouvé pour cet utilisateur.");
+        return;
+      }
+      const userData = userDoc.data();
+      if (userData.role !== 'admin') {
+        setLoginError("Seuls les administrateurs peuvent accéder au tableau de bord admin.");
+        return;
+      }
       setSuccessMessage('Connexion réussie !');
-      
       // Store user info in localStorage
       localStorage.setItem('userInfo', JSON.stringify({
-        email: userCredential.user.email,
-        displayName: userCredential.user.displayName || email.split('@')[0],
-        uid: userCredential.user.uid
+        email: user.email,
+        displayName: user.displayName || email.split('@')[0],
+        uid: user.uid,
+        role: userData.role
       }));
-      
       // Close modal and navigate to admin dashboard after a short delay
       setTimeout(() => {
         if (onCloseModal) onCloseModal();
         navigate('/admin');
       }, 1500);
-      
     }catch(error){
       console.log(error.code);
       setLoginError('Email ou mot de passe incorrect');
@@ -85,7 +91,7 @@ export default function Login({ onCloseModal }) {
         </div>
         <p className="login-signup-switch text-center mt-3">
           Si vous n'avez pas de compte ?{' '}
-          <span className="login-signup-link" onClick={() => setShowSignUp(true)} style={{color: '#dc3545', cursor: 'pointer', fontWeight: 600}}>Inscription</span>
+          <span className="login-signup-link" onClick={onSwitchToSignUp} style={{color: '#dc3545', cursor: 'pointer', fontWeight: 600}}>Inscription</span>
         </p>
       </form>
     </div>

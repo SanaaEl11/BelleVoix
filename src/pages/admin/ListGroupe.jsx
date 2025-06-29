@@ -43,6 +43,7 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import GroupIcon from '@mui/icons-material/Group';
 import PersonIcon from '@mui/icons-material/Person';
 import CloseIcon from '@mui/icons-material/Close';
+import SearchIcon from '@mui/icons-material/Search';
 
 const ListGroupe = () => {
   const [groups, setGroups] = useState([]);
@@ -55,6 +56,13 @@ const ListGroupe = () => {
   const [editIndex, setEditIndex] = useState(null);
   const [editForm, setEditForm] = useState({ nom: '', etudiants: [] });
   const [deleteIndex, setDeleteIndex] = useState(null);
+  const [search, setSearch] = useState('');
+  const [page, setPage] = useState(1);
+  const groupsPerPage = 5;
+  const [studentPage, setStudentPage] = useState(1);
+  const studentsPerPage = 3;
+  const studentPageCount = Math.ceil(groupStudents.length / studentsPerPage);
+  const paginatedGroupStudents = groupStudents.slice((studentPage - 1) * studentsPerPage, studentPage * studentsPerPage);
 
   useEffect(() => {
     fetchGroups();
@@ -64,6 +72,7 @@ const ListGroupe = () => {
   useEffect(() => {
     if (selectedGroup) {
       fetchGroupStudents();
+      setStudentPage(1);
     }
   }, [selectedGroup]);
 
@@ -205,6 +214,13 @@ const ListGroupe = () => {
     setDeleteIndex(null);
   };
 
+  // Filtered and paginated groups
+  const filteredGroups = groups.filter(g =>
+    g.nom?.toLowerCase().includes(search.toLowerCase())
+  );
+  const pageCount = Math.ceil(filteredGroups.length / groupsPerPage);
+  const paginatedGroups = filteredGroups.slice((page - 1) * groupsPerPage, page * groupsPerPage);
+
   if (loading) {
     return (
       <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '50vh' }}>
@@ -217,9 +233,27 @@ const ListGroupe = () => {
     <Box sx={{ p: 3 }}>
       <Box sx={{ display: 'flex', alignItems: 'center', mb: 3 }}>
         <GroupIcon sx={{ mr: 2, fontSize: 32, color: '#dc3545' }} />
-        <Typography variant="h4" component="h1" sx={{ color: '#1c2526' }}>
+        <Typography variant="h4" component="h1" sx={{ color: '#1c2526', flexGrow: 1 }}>
           Liste des groupes
         </Typography>
+        <Box sx={{ display: 'flex', alignItems: 'center', background: '#fff', borderRadius: '999px', boxShadow: '0 2px 12px 0 #dc354540', px: 2, py: 0.5, minWidth: 220 }}>
+          <SearchIcon sx={{ color: '#dc3545', fontSize: 22, mr: 1 }} />
+          <input
+            type="text"
+            placeholder="Rechercher un groupe..."
+            value={search}
+            onChange={e => { setSearch(e.target.value); setPage(1); }}
+            style={{
+              border: 'none',
+              outline: 'none',
+              background: 'transparent',
+              fontSize: '1rem',
+              color: '#1c2526',
+              width: '100%',
+              fontWeight: 500
+            }}
+          />
+        </Box>
       </Box>
 
       {error && (
@@ -259,7 +293,7 @@ const ListGroupe = () => {
                   </TableRow>
                 </TableHead>
                 <TableBody>
-                  {groups.map((group, index) => (
+                  {paginatedGroups.map((group, index) => (
                     <TableRow key={group.id} hover>
                       <TableCell>
                         <Typography variant="subtitle1" sx={{ fontWeight: 500 }}>
@@ -318,6 +352,43 @@ const ListGroupe = () => {
           )}
         </CardContent>
       </Card>
+
+      {/* Pagination controls */}
+      {pageCount > 1 && (
+        <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', mt: 2 }}>
+          <Button
+            variant="outlined"
+            sx={{
+              minWidth: 36,
+              borderRadius: '999px',
+              color: '#dc3545',
+              borderColor: '#dc3545',
+              mx: 1,
+              fontWeight: 700
+            }}
+            disabled={page === 1}
+            onClick={() => setPage(page - 1)}
+          >
+            {'<'}
+          </Button>
+          <Typography sx={{ mx: 2, fontWeight: 600, color: '#1c2526' }}>{page} / {pageCount}</Typography>
+          <Button
+            variant="outlined"
+            sx={{
+              minWidth: 36,
+              borderRadius: '999px',
+              color: '#F7C015',
+              borderColor: '#F7C015',
+              mx: 1,
+              fontWeight: 700
+            }}
+            disabled={page === pageCount}
+            onClick={() => setPage(page + 1)}
+          >
+            {'>'}
+          </Button>
+        </Box>
+      )}
 
       {selectedGroup && (
         <Dialog 
@@ -396,29 +467,67 @@ const ListGroupe = () => {
                         Aucun étudiant trouvé dans ce groupe
                       </Typography>
                     ) : (
-                      <List sx={{ p: 0 }}>
-                        {groupStudents.map((student, index) => (
-                          <React.Fragment key={student.id}>
-                            <ListItem sx={{ px: 0 }}>
-                              <Avatar sx={{ mr: 2, bgcolor: '#dc3545', width: 32, height: 32 }}>
-                                <PersonIcon fontSize="small" />
-                              </Avatar>
-                              <ListItemText
-                                primary={`${student.nom} ${student.prenom}`}
-                                secondary={student.email}
-                                primaryTypographyProps={{ 
-                                  variant: 'body2', 
-                                  sx: { fontWeight: 500 } 
-                                }}
-                                secondaryTypographyProps={{ 
-                                  variant: 'caption' 
-                                }}
-                              />
-                            </ListItem>
-                            {index < groupStudents.length - 1 && <Divider />}
-                          </React.Fragment>
-                        ))}
-                      </List>
+                      <>
+                        <List sx={{ p: 0 }}>
+                          {paginatedGroupStudents.map((student, index) => (
+                            <React.Fragment key={student.id}>
+                              <ListItem sx={{ px: 0 }}>
+                                <Avatar sx={{ mr: 2, bgcolor: '#dc3545', width: 32, height: 32 }}>
+                                  <PersonIcon fontSize="small" />
+                                </Avatar>
+                                <ListItemText
+                                  primary={`${student.nom} ${student.prenom}`}
+                                  secondary={student.email}
+                                  primaryTypographyProps={{ 
+                                    variant: 'body2', 
+                                    sx: { fontWeight: 500 } 
+                                  }}
+                                  secondaryTypographyProps={{ 
+                                    variant: 'caption' 
+                                  }}
+                                />
+                              </ListItem>
+                              {index < paginatedGroupStudents.length - 1 && <Divider />}
+                            </React.Fragment>
+                          ))}
+                        </List>
+                        {/* Pagination controls for students */}
+                        {studentPageCount > 1 && (
+                          <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', mt: 2 }}>
+                            <Button
+                              variant="outlined"
+                              sx={{
+                                minWidth: 36,
+                                borderRadius: '999px',
+                                color: '#dc3545',
+                                borderColor: '#dc3545',
+                                mx: 1,
+                                fontWeight: 700
+                              }}
+                              disabled={studentPage === 1}
+                              onClick={() => setStudentPage(studentPage - 1)}
+                            >
+                              {'<'}
+                            </Button>
+                            <Typography sx={{ mx: 2, fontWeight: 600, color: '#1c2526' }}>{studentPage} / {studentPageCount}</Typography>
+                            <Button
+                              variant="outlined"
+                              sx={{
+                                minWidth: 36,
+                                borderRadius: '999px',
+                                color: '#F7C015',
+                                borderColor: '#F7C015',
+                                mx: 1,
+                                fontWeight: 700
+                              }}
+                              disabled={studentPage === studentPageCount}
+                              onClick={() => setStudentPage(studentPage + 1)}
+                            >
+                              {'>'}
+                            </Button>
+                          </Box>
+                        )}
+                      </>
                     )}
                   </CardContent>
                 </Card>

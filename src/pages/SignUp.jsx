@@ -14,6 +14,7 @@ export default function SignUp({ onSwitchToLogin }) {
   const[lastname,setLastname]=useState('');
   const[loginError,setLoginError]=useState('');
   const[successMessage,setSuccessMessage]=useState('');
+  const[role, setRole] = useState('user');
   const auth=getAuth(app);
   
   const HandleSign=async(e)=>{
@@ -45,7 +46,7 @@ export default function SignUp({ onSwitchToLogin }) {
         firstname: firstname,
         lastname: lastname,
         displayName: `${firstname} ${lastname}`,
-        role: 'user', // Default role
+        role: role,
         createdAt: new Date().toISOString(),
         isActive: true
       });
@@ -58,6 +59,7 @@ export default function SignUp({ onSwitchToLogin }) {
       setConfirmPassword('');
       setFirstname('');
       setLastname('');
+      setRole('user');
     }
     catch(error){
       console.log(error);
@@ -140,6 +142,19 @@ export default function SignUp({ onSwitchToLogin }) {
             placeholder="Confirmez le mot de passe" 
             required 
           />
+        </div>
+        <div className="mb-3">
+          <label htmlFor="signup-role" className="form-label">Rôle</label>
+          <select
+            id="signup-role"
+            className="form-control"
+            value={role}
+            onChange={e => setRole(e.target.value)}
+            required
+          >
+            <option value="user">Utilisateur</option>
+            <option value="admin">Admin</option>
+          </select>
         </div>
         <div className="d-flex justify-content-center">
           <button type="submit" className="btn btn-login-modal w-100">Créer un compte</button>
